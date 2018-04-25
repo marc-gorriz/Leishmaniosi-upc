@@ -2,14 +2,13 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import argparse
-import os
-
 import numpy as np
+import os
 from keras.callbacks import TensorBoard
 from scipy.misc import imread, imsave
 from unet_generator import UNetGeneratorClass
 
-from src.unet import Unet
+from unet import Unet
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Classify image patches with a U-Net")
@@ -21,50 +20,47 @@ if __name__ == '__main__':
     parser.add_argument('--display_step', type=int, default=20)
     parser.add_argument('--num_classes', type=int, default=8)
     parser.add_argument('--batch_size', type=int, default=5)
-    parser.add_argument('--overall_epochs', type=int, default=100)
-    parser.add_argument('--parasite_epochs', type=int, default=40)
+    parser.add_argument('--overall_epochs', type=int, default=200)
+    parser.add_argument('--parasite_epochs', type=int, default=20)
     parser.add_argument('--train', dest='do_train', action='store_true', help='Flag to train or not.')
     parser.add_argument('--test', dest='do_test', action='store_true', help='Flag to test or not.')
 
     args = parser.parse_args()
-    only_parasite_score = 0.4
-    overall_score = 0
+    only_parasite_score = 0.3
+    overall_score = 0.001
 
-
-    #assert os.path.exists(args.input_path), 'non-existant input path'
     if not os.path.exists(args.output_path):
         os.makedirs(args.output_path)
     if not os.path.exists(args.test_path):
         os.makedirs(args.test_path)
 
-    #model = Unet(n_class=8, dropout=0.5, batch_norm=True).get_unet()
-    #model = Unet(n_class=8, dropout=0.5, batch_norm=True)
-    #model = Unet(n_class=8, dropout=0.5, batch_norm=True).get_unet()
-    #model.load_weights(os.path.join(args.input_path, 'weights.hdf5'))
-
-
     if args.do_train:
 
         model = Unet(n_class=8, dropout=0, batch_norm=True).get_unet()
-        # model.load_weights(os.path.join(args.input_path, 'weights.hdf5'))
-
+        #model.load_weights('/imatge/mgorriz/work/Leishmaniosi-Project/experiments/p30-40-100-pa-50-1/unet_train weights.hdf5')
 
         only_parasite_generator = UNetGeneratorClass(n_class=args.num_classes, batch_size=args.batch_size,
-                                             apply_augmentation=True, sampling_score=only_parasite_score,
-                                             data_path=args.train_data, mode='train')
+                                                     apply_augmentation=False, sampling_score=only_parasite_score,
+                                                     data_path=args.train_data, mode='train')
 
         overall_generator = UNetGeneratorClass(n_class=args.num_classes, batch_size=args.batch_size,
-                                                     apply_augmentation=True, sampling_score=overall_score,
-                                                     data_path=args.train_data, mode='train')
+                                               apply_augmentation=False, sampling_score=overall_score,
+                                               data_path=args.train_data, mode='train')
+
+        validation_generator = UNetGeneratorClass(n_class=args.num_classes, batch_size=args.batch_size,
+                                               apply_augmentation=False, sampling_score=overall_score,
+                                               data_path=args.train_data, mode='test1')
 
         tensorboard = TensorBoard(log_dir=args.output_path, histogram_freq=0, write_graph=True, write_images=False)
 
-        model.fit_generator(generator=only_parasite_generator.generate(),
-                            steps_per_epoch=(len(only_parasite_generator.files_list) // args.batch_size)*12,
+        model.fit_generator(generator=only_parasite_generator.generate(), validation_data=validation_generator.generate(),
+                            validation_steps=(len(validation_generator.files_list) // args.batch_size),
+                            steps_per_epoch=(len(only_parasite_generator.files_list) // args.batch_size),
                             epochs=args.parasite_epochs, verbose=1, callbacks=[tensorboard])
 
-        model.fit_generator(generator=overall_generator.generate(),
-                            steps_per_epoch=(len(overall_generator.files_list) // args.batch_size)*12,
+        model.fit_generator(generator=overall_generator.generate(), validation_data=validation_generator.generate(),
+                            validation_steps=(len(validation_generator.files_list) // args.batch_size),
+                            steps_per_epoch=(len(overall_generator.files_list) // args.batch_size),
                             epochs=args.overall_epochs, verbose=1, callbacks=[tensorboard])
 
         model.save_weights(os.path.join(args.output_path, 'weights.hdf5'))
@@ -97,14 +93,14 @@ if __name__ == '__main__':
             label = imread(
                 os.path.join(args.test_data, 'labels', image_name[0]) + '.png')
 
-            img_rows = image.shape[0] - image.shape[0]%32
-            img_cols = image.shape[1] - image.shape[1]%32
+            img_rows = image.shape[0] - image.shape[0] % 32
+            img_cols = image.shape[1] - image.shape[1] % 32
 
             image = image[0:img_rows, 0:img_cols]
             label = label[0:img_rows, 0:img_cols]
 
             model = unet.get_unet(img_rows=img_rows, img_cols=img_cols)
-            #model = unet.get_unet()
+
             model.load_weights(os.path.join(args.output_path, 'weights200.hdf5'))
 
             prediction = model.predict(np.expand_dims(image, axis=0))
@@ -119,6 +115,3 @@ if __name__ == '__main__':
             imsave(os.path.join(args.test_path, image_name[0] + '_p.png'), pr_mat)
             imsave(os.path.join(args.test_path, image_name[0] + '_gt.png'), gt_mat)
             imsave(os.path.join(args.test_path, image_name[0] + '_img.png'), image)
-
-
-
