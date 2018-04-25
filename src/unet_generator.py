@@ -1,10 +1,9 @@
 from __future__ import print_function
 
-import os
-from random import shuffle, randint
-
 import numpy as np
+import os
 from keras.utils import to_categorical
+from random import shuffle, randint
 from scipy.misc import imread
 from skimage.transform import rotate
 
