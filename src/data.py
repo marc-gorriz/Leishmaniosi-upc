@@ -3,12 +3,11 @@ from __future__ import (absolute_import, division, print_function,
 
 import argparse
 import glob
+import numpy as np
 import os
 import shutil
-from random import shuffle
-
-import numpy as np
 from keras.utils import to_categorical
+from random import shuffle
 from scipy.misc import imread, imsave
 from sklearn.feature_extraction.image import extract_patches
 
@@ -130,6 +129,7 @@ if __name__ == '__main__':
                         default="/imatge/mgorriz/work/Leishmaniosi-Project/data/Lishmaniosi_data")
     parser.add_argument('--data_path', type=str,
                         default="/imatge/mgorriz/work/Leishmaniosi-Project/data/patches")
+                        #default="/imatge/mgorriz/work/Leishmaniosi-Project/data")
     parser.add_argument('--num_classes', type=int, default=8)
     parser.add_argument('--patch_size', type=int, default=224)
     parser.add_argument('--patch_overlap', type=int, default=112)
@@ -144,7 +144,8 @@ if __name__ == '__main__':
 
     elif args.patches:
         create_patches(args.patch_size, args.patch_overlap, 'train', args.data_path)
-        create_patches(args.patch_size, args.patch_overlap, 'validation', args.data_path)
+        #create_patches(args.patch_size, args.patch_overlap, 'validation', args.data_path)
+        create_patches(args.patch_size, args.patch_overlap, 'test1', args.data_path)
 
     elif args.score:
         compute_patch_statistics(args.data_path, args.patch_size)
