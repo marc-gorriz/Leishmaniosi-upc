@@ -3,17 +3,19 @@ from __future__ import (absolute_import, division, print_function,
 
 import argparse
 import glob
+
 import numpy as np
 import os
 import shutil
-from keras.utils import to_categorical
 from random import shuffle
 from scipy.misc import imread, imsave
 from sklearn.feature_extraction.image import extract_patches
 
 
 def database_balancing(images_path='data', data_path='output', score_train=0.75, score_validation=0.15):
-    # Create train and test folders
+    """
+    Random database balancing weighted by score_train and score_validation.
+    """
 
     assert os.path.exists(images_path)
     img_path = os.path.join(images_path, "img")
@@ -62,7 +64,9 @@ def database_balancing(images_path='data', data_path='output', score_train=0.75,
 
 
 def create_patches(patch_size, patch_overlap, mode, data_path='data'):
-    # Create train & validation pathces, test will be done with overall images
+    """
+    Create patches from data_path + mode, with patch_size x patch_size and an overlapping of patch_overlap
+    """
 
     source_img_path = os.path.join(data_path, "balance", mode)
     source_labels_path = os.path.join(data_path, "balance", "labels")
@@ -101,8 +105,11 @@ def create_patches(patch_size, patch_overlap, mode, data_path='data'):
 
 
 def compute_patch_statistics(data_path, patch_size):
-    img_path = os.path.join(data_path, 'train')
-    labels_path = os.path.join(data_path, 'labels')
+    """
+    Compute the percentage of parasitic pixels (classes 5, 6, 7) for each training patch.
+    """
+    img_path = os.path.join(data_path, 'patches', 'train')
+    labels_path = os.path.join(data_path, 'patches', 'labels')
 
     parasite_classes = [5, 6, 7]
 
@@ -126,10 +133,10 @@ def compute_patch_statistics(data_path, patch_size):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Data operations.")
     parser.add_argument('--img_path', type=str,
-                        default="/imatge/mgorriz/work/Leishmaniosi-Project/data/Lishmaniosi_data")
+                        default="/imatge/mgorriz/work/Leishmaniosi-Project/data/Lishmaniosi_data",
+                        help='Source image path for balancing')
     parser.add_argument('--data_path', type=str,
-                        default="/imatge/mgorriz/work/Leishmaniosi-Project/data/patches")
-                        #default="/imatge/mgorriz/work/Leishmaniosi-Project/data")
+                        default="/imatge/mgorriz/work/Leishmaniosi-Project/data")
     parser.add_argument('--num_classes', type=int, default=8)
     parser.add_argument('--patch_size', type=int, default=224)
     parser.add_argument('--patch_overlap', type=int, default=112)
@@ -140,14 +147,24 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.balance:
+
+        # database balancing
         database_balancing(args.img_path, args.data_path, score_train=0.75, score_validation=0.15)
 
     elif args.patches:
+
+        # train patches
         create_patches(args.patch_size, args.patch_overlap, 'train', args.data_path)
-        #create_patches(args.patch_size, args.patch_overlap, 'validation', args.data_path)
-        create_patches(args.patch_size, args.patch_overlap, 'test1', args.data_path)
+
+        # validation patches
+        create_patches(args.patch_size, args.patch_overlap, 'validation', args.data_path)
+
+        # test patches
+        create_patches(args.patch_size, args.patch_overlap, 'test', args.data_path)
 
     elif args.score:
+
+        # compute the parasitic content of the training patches
         compute_patch_statistics(args.data_path, args.patch_size)
 
     else:

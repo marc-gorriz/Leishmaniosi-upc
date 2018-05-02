@@ -6,112 +6,64 @@ import numpy as np
 import os
 from keras.callbacks import TensorBoard
 from scipy.misc import imread, imsave
-from unet_generator import UNetGeneratorClass
+from config.configuration import Configuration
+from src.unet_generator import UNetGeneratorClass
 
-from unet import Unet
+from src.unet import Unet
+from src.utils import save_results, overall_table, jaccard_table
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Classify image patches with a U-Net")
-    parser.add_argument('--train_data', type=str, default="data")
-    parser.add_argument('--test_data', type=str, default="data")
-    parser.add_argument('--input_path', type=str, default="input")
-    parser.add_argument('--output_path', type=str, default="output")
-    parser.add_argument('--test_path', type=str, default="test")
-    parser.add_argument('--display_step', type=int, default=20)
-    parser.add_argument('--num_classes', type=int, default=8)
-    parser.add_argument('--batch_size', type=int, default=5)
-    parser.add_argument('--overall_epochs', type=int, default=200)
-    parser.add_argument('--parasite_epochs', type=int, default=20)
-    parser.add_argument('--train', dest='do_train', action='store_true', help='Flag to train or not.')
-    parser.add_argument('--test', dest='do_test', action='store_true', help='Flag to test or not.')
-
+    parser = argparse.ArgumentParser(description='Model training')
+    parser.add_argument('-c', '--config_path', type=str, default=None, help='Configuration file')
+    parser.add_argument('-a', '--action', type=str, default=None, help='train or test')
     args = parser.parse_args()
-    only_parasite_score = 0.3
-    overall_score = 0.001
 
-    if not os.path.exists(args.output_path):
-        os.makedirs(args.output_path)
-    if not os.path.exists(args.test_path):
-        os.makedirs(args.test_path)
+    cf = Configuration(args.config_path).load()
 
-    if args.do_train:
+    if args.action is 'train':
 
-        model = Unet(n_class=8, dropout=0, batch_norm=True).get_unet()
-        #model.load_weights('/imatge/mgorriz/work/Leishmaniosi-Project/experiments/p30-40-100-pa-50-1/unet_train weights.hdf5')
+        model = Unet(n_class=cf.num_classes, dropout=cf.dropout, batch_norm=True).get_unet()
+        if cf.input_weights is not None:
+            model.load_weights(cf.input_weights)
 
         only_parasite_generator = UNetGeneratorClass(n_class=args.num_classes, batch_size=args.batch_size,
-                                                     apply_augmentation=False, sampling_score=only_parasite_score,
-                                                     data_path=args.train_data, mode='train')
+                                                     apply_augmentation=cf.parasite_augmentation,
+                                                     sampling_score=cf.parasite_score,
+                                                     data_path=cf.train_data_path, mode='train')
 
         overall_generator = UNetGeneratorClass(n_class=args.num_classes, batch_size=args.batch_size,
-                                               apply_augmentation=False, sampling_score=overall_score,
-                                               data_path=args.train_data, mode='train')
+                                               apply_augmentation=cf.overall_augmentation,
+                                               sampling_score=cf.overall_score,
+                                               data_path=cf.train_data_path, mode='train')
 
-        validation_generator = UNetGeneratorClass(n_class=args.num_classes, batch_size=args.batch_size,
-                                               apply_augmentation=False, sampling_score=overall_score,
-                                               data_path=args.train_data, mode='test1')
+        validation_generator = UNetGeneratorClass(n_class=cf.num_classes, batch_size=cf.batch_size,
+                                                  apply_augmentation=cf.overall_augmentation,
+                                                  sampling_score=cf.overall_score,
+                                                  data_path=cf.train_data_path, mode='validation')
 
-        tensorboard = TensorBoard(log_dir=args.output_path, histogram_freq=0, write_graph=True, write_images=False)
+        tensorboard = TensorBoard(log_dir=cf.train_output_path, histogram_freq=0, write_graph=cf.tB_write_graph,
+                                  write_images=cf.tB_write_images)
 
-        model.fit_generator(generator=only_parasite_generator.generate(), validation_data=validation_generator.generate(),
-                            validation_steps=(len(validation_generator.files_list) // args.batch_size),
-                            steps_per_epoch=(len(only_parasite_generator.files_list) // args.batch_size),
-                            epochs=args.parasite_epochs, verbose=1, callbacks=[tensorboard])
+        model.fit_generator(generator=only_parasite_generator.generate(),
+                            validation_data=validation_generator.generate(),
+                            validation_steps=(len(validation_generator.files_list) // cf.batch_size),
+                            steps_per_epoch=(len(only_parasite_generator.files_list) // cf.batch_size),
+                            epochs=cf.parasite_epochs, verbose=1, callbacks=[tensorboard])
 
         model.fit_generator(generator=overall_generator.generate(), validation_data=validation_generator.generate(),
-                            validation_steps=(len(validation_generator.files_list) // args.batch_size),
-                            steps_per_epoch=(len(overall_generator.files_list) // args.batch_size),
-                            epochs=args.overall_epochs, verbose=1, callbacks=[tensorboard])
+                            validation_steps=(len(validation_generator.files_list) // cf.batch_size),
+                            steps_per_epoch=(len(overall_generator.files_list) // cf.batch_size),
+                            epochs=cf.overall_epochs, verbose=1, callbacks=[tensorboard])
 
-        model.save_weights(os.path.join(args.output_path, 'weights.hdf5'))
-        model.save(os.path.join(args.output_path, 'model.h5'))
+        model.save_weights(os.path.join(cf.train_output_path, 'weights.hdf5'))
 
 
-    elif args.do_test:
+    elif args.action is 'test':
+        weights = os.path.join(cf.train_output_path, 'weights.hdf5')
+        save_results(cf.test_data_path, weights, cf.train_output_path, cf.save_predictions, cf.save_regions)
 
-        filenames = os.listdir(os.path.join(args.test_data, 'test1'))
-        files_list = []
-        [files_list.append(os.path.splitext(name)) for name in filenames]
+        if cf.print_overall_table:
+            overall_table(cf.test_data_path, cf.test_labels_path, weights)
 
-        unet = Unet(n_class=8, dropout=0, batch_norm=True)
-
-        color_code_dict = [
-            [0.0, 0.0, 0.0],  # 0 - Black   - Background
-            [1.0, 0.0, 0.0],  # 1 - Red     - Non-usable area
-            [1.0, 0.5, 0.0],  # 2 - Orange  - Non-parasite
-            [1.0, 1.0, 1.0],  # 3 - White   - Cytoplasm
-            [1.0, 0.0, 1.0],  # 4 - Magenta - Nucleus
-            [0.0, 0.0, 1.0],  # 5 - Blue    - Promastigote
-            [0.0, 1.0, 0.0],  # 6 - Green   - Adhered
-            [0.0, 1.0, 1.0],  # 7 - Cyan    - Amastigote
-        ]
-
-        for image_name in files_list:
-            image = imread(
-                os.path.join(args.test_data, 'test1', image_name[0]) + image_name[1])
-
-            label = imread(
-                os.path.join(args.test_data, 'labels', image_name[0]) + '.png')
-
-            img_rows = image.shape[0] - image.shape[0] % 32
-            img_cols = image.shape[1] - image.shape[1] % 32
-
-            image = image[0:img_rows, 0:img_cols]
-            label = label[0:img_rows, 0:img_cols]
-
-            model = unet.get_unet(img_rows=img_rows, img_cols=img_cols)
-
-            model.load_weights(os.path.join(args.output_path, 'weights200.hdf5'))
-
-            prediction = model.predict(np.expand_dims(image, axis=0))
-            prediction = np.argmax(prediction[0], axis=2)
-            gt_mat = np.zeros(label.shape + (3,))
-            pr_mat = np.zeros(prediction.shape + (3,))
-
-            for num in range(len(color_code_dict)):
-                gt_mat[label == num, :] = color_code_dict[num]
-                pr_mat[prediction == num, :] = color_code_dict[num]
-
-            imsave(os.path.join(args.test_path, image_name[0] + '_p.png'), pr_mat)
-            imsave(os.path.join(args.test_path, image_name[0] + '_gt.png'), gt_mat)
-            imsave(os.path.join(args.test_path, image_name[0] + '_img.png'), image)
+        if cf.print_jaccard_table:
+            jaccard_table(cf.test_data_path, cf.test_labels_path, weights)
