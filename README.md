@@ -2,7 +2,7 @@
 
 | ![Marc Górriz][MarcGorriz-photo]  |  ![Albert Aparicio][AlbertAparicio-photo] | ![Elisa Sayrol][ElisaSayrol-photo]  | ![Verónica Vilaplana][VeronicaVilaplana-photo]  |
 |:-:|:-:|:-:|:-:|
-| [Marc Górriz][MarcGorriz-web]  | [Axel Carlier][AlbertAparicio-web] | [Elisa Sayrol][ElisaSayrol-web] | [Verónica Vilaplana][VeronicaVilaplana-web] |
+| [Marc Górriz][MarcGorriz-web]  | [Albert Aparicio][AlbertAparicio-web] | [Elisa Sayrol][ElisaSayrol-web] | [Verónica Vilaplana][VeronicaVilaplana-web] |
 
 [MarcGorriz-web]: https://www.linkedin.com/in/marc-górriz-blanch-74501a123/
 [AlbertAparicio-web]: https://www.linkedin.com/in/albert-aparicio-isarn-3977038b/
