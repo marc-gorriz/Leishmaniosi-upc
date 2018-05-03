@@ -63,4 +63,31 @@ Also, the tree of ```raw``` dir must be like:
 
 ### Launch an experiment
 * Make a new configuration file based on ```config/config_exp1.py``` and save it into ```config``` directory.
-Make sure to launch the process over a GPU. The project models were trained on a NVIDIA GTX Titan X taking around 11 GB of RAM  memory.
+Make sure to launch the all the processes over a GPU. On this project there was used an NVIDIA GTX Titan X.
+
+* To train a new model, run  ```python main.py --config_path config/[config file].py --action train```.
+* To test the model, run ```python main.py --config_path config/[config file].py --action test```.
+
+## Acknowledgements
+
+We would like to especially thank Albert Gil Moreno from our technical support team at the Image Processing Group at the UPC.
+
+| ![AlbertGil-photo]  |
+|:-:|
+| [Albert Gil](AlbertGil-web)   |
+
+[AlbertGil-photo]: https://raw.githubusercontent.com/imatge-upc/saliency-2016-cvpr/master/authors/AlbertGil.jpg "Albert Gil"
+
+[AlbertGil-web]: https://imatge.upc.edu/web/people/albert-gil-moreno
+
+|   |   |
+|:--|:-:|
+|  We gratefully acknowledge the support of [NVIDIA Corporation](http://www.nvidia.com/content/global/global.php) with the donation of the GeoForce GTX [Titan X](http://www.geforce.com/hardware/desktop-gpus/geforce-gtx-titan-x) used in this work. |  ![logo-nvidia] |
+|  The Image ProcessingGroup at the UPC is a [SGR14 Consolidated Research Group](https://imatge.upc.edu/web/projects/sgr14-image-and-video-processing-group) recognized and sponsored by the Catalan Government (Generalitat de Catalunya) through its [AGAUR](http://agaur.gencat.cat/en/inici/index.html) office. |  ![logo-catalonia] |
+
+[logo-nvidia]: https://raw.githubusercontent.com/imatge-upc/saliency-2016-cvpr/master/logos/nvidia.jpg "Logo of NVidia"
+[logo-catalonia]: https://raw.githubusercontent.com/imatge-upc/saliency-2016-cvpr/master/logos/generalitat.jpg "Logo of Catalan government"
+
+## Contact
+
+If you have any general doubt about our work or code which may be of interest for other researchers, please use the [public issues section](https://github.com/marc-gorriz/Leishmaniosi-upc/issues) on this github repo. Alternatively, drop us an e-mail at <mailto:elisa.sayrol@upc.edu>.
