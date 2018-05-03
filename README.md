@@ -59,5 +59,5 @@ Also, the tree of ```raw``` dir must be like:
 
 * Run ```python src/data.py --data_path data --patches``` to generate the training patches with the right size and overlap, check ```src/data.py``` script.
 
-* Then, run ```python src/data.py --data_path data --parasite_score``` to generate the file ```data/parasite_score.npy```.
+* Then, run ```python src/data.py --data_path data --parasite_score``` to generate ```data/parasite_score.npy``` file.
 
