@@ -55,11 +55,11 @@ Also, the tree of ```raw``` dir must be like:
       |
       ---- …
 ```
-* Run ```python src/data.py --img_path [raw path] --data_path [data path] --balance``` to randomly balance the raw data into train, test and validation sets. The script will create ```[data path]``` locating the ```data/balance``` path within in.
+* Run ```python src/data.py --img_path [raw path] --data_path [data path] --balance``` to randomly balance the raw data into train, test and validation sets. The script will create ```[data path]``` locating the ```[data path]/balance``` path within in.
 
-* Run ```python src/data.py --data_path data --patches``` to generate the training patches with the right size and overlap, check ```src/data.py``` script.
+* Run ```python src/data.py --data_path [data path] --patches``` to generate the training patches with the right size and overlap, check ```src/data.py``` script.
 
-* Then, run ```python src/data.py --data_path data --parasite_score``` to generate ```data/parasite_score.npy``` file.
+* Then, run ```python src/data.py --data_path [data path] --parasite_score``` to generate ```[data path]/parasite_score.npy``` file.
 
 ### Launch an experiment
 * Make a new configuration file based on ```config/config_exp1.py``` and save it into the ```config``` directory.
