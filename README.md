@@ -55,4 +55,6 @@ Also, the tree of ```raw``` dir must be like:
       |
       ---- …
 ```
-* Now run ```python src/data.py --img_path [raw path] --balance``` to randomly balance the raw data into train, test and validation sets.
+* Run ```python src/data.py --img_path [raw path] --balance``` to randomly balance the raw data into train, test and validation sets.
+
+* Run ```python src/data.py --data_path [balance path] --pathces``` to generate patches with the right size and overlap, check ```src/data.py``` script.
