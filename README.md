@@ -62,8 +62,8 @@ Also, the tree of ```raw``` dir must be like:
 * Then, run ```python src/data.py --data_path data --parasite_score``` to generate ```data/parasite_score.npy``` file.
 
 ### Launch an experiment
-* Make a new configuration file based on ```config/config_exp1.py``` and save it into ```config``` directory.
-Make sure to launch the all the processes over a GPU. On this project there was used an NVIDIA GTX Titan X.
+* Make a new configuration file based on ```config/config_exp1.py``` and save it into the ```config``` directory.
+Make sure to launch all the processes over GPU. On this project there was used an NVIDIA GTX Titan X.
 
 * To train a new model, run  ```python main.py --config_path config/[config file].py --action train```.
 * To test the model, run ```python main.py --config_path config/[config file].py --action test```.
