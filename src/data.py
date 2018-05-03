@@ -132,11 +132,8 @@ def compute_patch_statistics(data_path, patch_size):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Data operations.")
-    parser.add_argument('--img_path', type=str,
-                        default="/imatge/mgorriz/work/Leishmaniosi-Project/data/Lishmaniosi_data",
-                        help='Source image path for balancing')
-    parser.add_argument('--data_path', type=str,
-                        default="/imatge/mgorriz/work/Leishmaniosi-Project/data")
+    parser.add_argument('--img_path', type=str, default=None, help='Source raw image path')
+    parser.add_argument('--data_path', type=str, default=None, help='Generated data path')
     parser.add_argument('--num_classes', type=int, default=8)
     parser.add_argument('--patch_size', type=int, default=224)
     parser.add_argument('--patch_overlap', type=int, default=112)
