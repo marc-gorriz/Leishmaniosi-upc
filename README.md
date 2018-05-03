@@ -55,6 +55,9 @@ Also, the tree of ```raw``` dir must be like:
       |
       ---- …
 ```
-* Run ```python src/data.py --img_path [raw path] --balance``` to randomly balance the raw data into train, test and validation sets.
+* Run ```python src/data.py --img_path [raw path] --balance``` to randomly balance the raw data into train, test and validation sets. The script will create ```data``` path in the project root locating the ```data/balance``` path within in.
 
-* Run ```python src/data.py --data_path [balance path] --pathces``` to generate patches with the right size and overlap, check ```src/data.py``` script.
+* Run ```python src/data.py --data_path data --patches``` to generate the training patches with the right size and overlap, check ```src/data.py``` script.
+
+* Then, run ```python src/data.py --data_path data --parasite_score``` to generate the file ```data/parasite_score.npy```.
+
