@@ -61,3 +61,6 @@ Also, the tree of ```raw``` dir must be like:
 
 * Then, run ```python src/data.py --data_path data --parasite_score``` to generate ```data/parasite_score.npy``` file.
 
+### Launch an experiment
+* Make a new configuration file based on ```config/config_exp1.py``` and save it into ```config``` directory.
+Make sure to launch the process over a GPU. The project models were trained on a NVIDIA GTX Titan X taking around 11 GB of RAM  memory.
