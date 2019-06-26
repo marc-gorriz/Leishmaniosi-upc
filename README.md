@@ -23,7 +23,7 @@ Leishmaniasis is considered a neglected disease that causes thousands of deaths 
 
 ![system-fig]
 
-[system-fig]: https://raw.githubusercontent.com/marc-gorriz/Leishmaniosi-upc/master/img/system_diagram.png
+[system-fig]: https://raw.githubusercontent.com/marc-gorriz/KneeOA-CNNAttention/master/figs/system_diagram.png
 
 ---
 
